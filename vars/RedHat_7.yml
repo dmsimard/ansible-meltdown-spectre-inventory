@@ -1,0 +1,2 @@
+pti_command: "grep 1 /sys/kernel/debug/x86/pti_enabled"
+meltdown_inventory: /tmp/meltdown-inventory

@@ -1,0 +1,29 @@
+- delegate_to: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python
+  block:
+    - name: Ensure host is in patched hosts inventory
+      lineinfile:
+        create: yes
+        dest: "{{ meltdown_inventory }}"
+        insertafter: '^\[patched'
+        line: >-
+          {{ inventory_hostname }}
+          state=patched
+          fqdn={{ ansible_fqdn }}
+          kernel={{ ansible_kernel }}
+          distribution={{ ansible_distribution }}
+          version={{ ansible_distribution_version }}
+        state: present
+
+    - name: Ensure host is not in unpatched hosts inventory
+      lineinfile:
+        dest: "{{ meltdown_inventory }}"
+        regexp: "{{ inventory_hostname }} state=unpatched"
+        state: absent
+
+    - name: Ensure host is not in amd hosts inventory
+      lineinfile:
+        dest: "{{ meltdown_inventory }}"
+        regexp: "{{ inventory_hostname }} state=amd"
+        state: absent

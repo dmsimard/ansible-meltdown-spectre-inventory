@@ -1,0 +1,53 @@
+- hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Include OS-specific variables
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yml"
+
+    - name: Create inventory file for meltdown
+      delegate_to: localhost
+      run_once: yes
+      copy:
+        force: no
+        dest: "{{ meltdown_inventory }}"
+        content: |
+          [patched]
+
+          [unpatched]
+
+          [amd]
+
+      vars:
+        ansible_python_interpreter: /usr/bin/python
+
+    - name: Check if Kernel PTI is enabled
+      shell: |
+        {{ pti_command }}
+      changed_when: false
+      failed_when: false
+      register: pti_enabled
+      when: "'GenuineIntel' in ansible_processor"
+
+    - include: add_patched.yml
+      static: no
+      when:
+        - pti_enabled is defined
+        - pti_enabled.rc == 0
+
+    - include: add_unpatched.yml
+      static: no
+      when:
+        - pti_enabled is defined
+        - pti_enabled.rc != 0
+
+    - include: add_amd.yml
+      static: no
+      when: "'GenuineIntel' not in ansible_processor"
+
+    - name: Print inventory location for meltdown
+      run_once: yes
+      debug:
+        msg: "Inventory is located here: {{ meltdown_inventory }}"

@@ -1,0 +1,2 @@
+pti_command: "dmesg | grep 'x86/pti: Kernel page table isolation enabled'"
+meltdown_inventory: /tmp/meltdown-inventory

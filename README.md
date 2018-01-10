@@ -1,1 +1,0 @@
-# ansible-meltdown-spectre-inventory

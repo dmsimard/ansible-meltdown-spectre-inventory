@@ -1,0 +1,2 @@
+pti_command: "dmesg | grep 'Kernel/User page tables isolation: enabled'"
+meltdown_inventory: /tmp/meltdown-inventory
